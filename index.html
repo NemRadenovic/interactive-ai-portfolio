@@ -275,12 +275,13 @@
             <img src="https://nem-radenovic.com/wp-content/uploads/2026/08/nem-avatar.jpg" alt="Nem Radenovic" class="chat-avatar" onerror="this.src='https://media.licdn.com/dms/image/v2/D5603AQGBQEs0CUDiwA/profile-displayphoto-scale_400_400/B56ZiKhEEgHcAg-/0/1754670581842?e=1789603200&v=beta&t=RBJmvf12AtyIjBJF28WfOyv0SJxM1oe6243B7S5Mohs'">
             <div class="message">
                 Welcome! 👋<br><br>
-                I am an AI trained on <span class="highlight-name">Nem Radenovic</span>'s professional and personal background. Feel free to ask about his MedTech leadership, target roles, technical skills, or project achievements!
+                I am an AI trained on <span class="highlight-name">Nem Radenovic</span>'s professional and personal background. Feel free to ask about his digital marketing experience, MedTech leadership, target roles, or technical skills!
             </div>
         </div>
     </div>
 
     <div class="suggestions-container" id="suggestions">
+        <button class="suggestion-btn" onclick="askQuestion('marketing')">Digital Marketing</button>
         <button class="suggestion-btn" onclick="askQuestion('medtech')">MedTech & Life Sciences</button>
         <button class="suggestion-btn" onclick="askQuestion('roles')">Target Roles</button>
         <button class="suggestion-btn" onclick="askQuestion('leadership')">Leadership & Culture</button>
@@ -288,7 +289,7 @@
     </div>
 
     <div class="input-area">
-        <input type="text" id="userInput" placeholder="Ask about MedTech experience, target roles, or skills..." onkeypress="handleKeyPress(event)">
+        <input type="text" id="userInput" placeholder="Ask about digital marketing experience, target roles, or skills..." onkeypress="handleKeyPress(event)">
         <button onclick="sendMessage()">Ask</button>
     </div>
 </div>
@@ -313,13 +314,13 @@
         logistics: "Here are details regarding Nem's work style and preferences:\n\n• **Work Arrangement:** Nem prefers a **hybrid or remote** work arrangement. Based in Guelph, Ontario, he is open to commuting for hybrid opportunities.\n• **Overtime:** Yes, Nem works overtime. When critical product launches or strategic initiatives require extra attention, he is fully dedicated to ensuring success.",
 
         // --- PROFESSIONAL & PERSONAL RESPONSES ---
+        marketing: "Nem brings over 16 years of digital marketing experience, driving strategy, growth, and transformation across MedTech, B2B, and Higher Education. His key achievements to date include:\n• **153% ROI Patient Sampling Campaign:** Launched a mobile app sampling initiative at embecta that became a global high-growth model.\n• **Giving Day Gamification:** Partnered with Advancement at UWaterloo to launch a campaign game, increasing donations by 39%.\n• **First Web Store Launch:** Built and launched a Shopify eCommerce store for Christie Digital, selling out clearance inventory levels by 42% in 8 months.\n• **B2B Transformation:** Increased CTRs by 155% and eCommerce revenue by 18% over 4 years at Canadian Workplace Solutions.",
+
         medtech: "Nem has deep expertise across the medical device, medical technology, pharmaceutical, and life sciences sectors:\n• **Dexcom (Current):** Leading digital marketing and Non-Personal Promotion (NPP) strategies to convert Canadian healthcare practitioners (HCPs) into product prescribers.\n• **embecta / BD:** Managed US syringe portfolio demand, North American digital efforts, and launched a first-of-its-kind mobile app patient sampling campaign achieving a 153% ROI.\n• **Industry Leadership:** Served as a Digital Health Task Force Committee Member for MedTech Canada.",
 
         personal: "Outside of professional life, here are a few fun facts about Nem:\n\n• **Family Life:** He has a family of five—his wife (who is a practicing family and emergency physician), a 5-year-old daughter, a 3-year-old son, and 'Dart', their 7-year-old Beagle/Lab mix.\n• **Background:** Originally from a Serbian background, Nem moved to Canada in 1999 and is fully bilingual in English and Serbo-Croatian.\n• **Active Hobbies:** He stays active through competitive rec basketball and volleyball leagues, running, hiking, and recently took up skiing thanks to his partner.\n• **Other Interests:** He operates a freelance digital branding business, enjoys board game design, and cultivates fruit trees in his garden.",
 
         roles: "Nem is actively targeting strategic leadership and senior management roles where he can drive digital transformation, build omnichannel strategies, and foster human-first AI adoption. His target titles include:\n• Senior Digital Marketing Manager / Digital Marketing Director\n• Digital Experience Lead / Lead Digital Marketing\n• Head of Digital Marketing\n• MedTech Marketing Manager",
-
-        projects: "Here are a few high-impact achievements from Nem's career:\n• **153% ROI Patient Sampling Campaign:** Launched a mobile app sampling initiative at embecta that became a global high-growth model.\n• **Giving Day Gamification:** Partnered with Advancement at UWaterloo to launch a campaign game, increasing donations by 39%.\n• **First Web Store Launch:** Built and launched a Shopify eCommerce store for Christie Digital, selling out clearance inventory levels by 42% in 8 months.\n• **B2B Transformation:** Increased CTRs by 155% and eCommerce revenue by 18% over 4 years at Canadian Workplace Solutions.",
 
         leadership: "Nem brings a highly collaborative and mentorship-driven approach to leadership. Throughout his career, he has led technical and non-technical teams, managed agency relationships, and overseen large cross-functional budgets.\n\nOutside of work, he gives back to the community as a Business Mentor at the Business Centre Guelph-Wellington and previously served on the MedTech Canada Digital Health Task Force.",
 
@@ -408,6 +409,7 @@
 
     function askQuestion(type) {
         const queryMap = {
+            'marketing': "Tell me about Nem's digital marketing experience and achievements to date.",
             'medtech': "Tell me about Nem's MedTech, life sciences, and regulatory experience.",
             'roles': "What target roles is Nem interested in?",
             'leadership': "Tell me about Nem's leadership style and mentoring experience.",
@@ -415,7 +417,7 @@
         };
 
         const queryText = queryMap[type];
-        if (!queryText) return; // safeguard
+        if (!queryText) return; 
         
         addMessage(queryText, 'user');
         showTypingIndicator();
@@ -477,9 +479,9 @@
         else if (q.includes('skill') || q.includes('tech') || q.includes('stack') || q.includes('certif') || q.includes('tool') || q.includes('ai') || q.includes('software') || q.includes('compliance')) {
             return knowledgeBase.tech;
         } 
-        // 13. Projects
-        else if (q.includes('achievement') || q.includes('project') || q.includes('impact') || q.includes('result') || q.includes('roi') || q.includes('campaign')) {
-            return knowledgeBase.projects;
+        // 13. Marketing & Projects
+        else if (q.includes('marketing') || q.includes('achievement') || q.includes('project') || q.includes('impact') || q.includes('result') || q.includes('roi') || q.includes('campaign') || q.includes('experience')) {
+            return knowledgeBase.marketing;
         } 
         // 14. Education
         else if (q.includes('education') || q.includes('school') || q.includes('degree') || q.includes('university') || q.includes('waterloo') || q.includes('laurier') || q.includes('master')) {
