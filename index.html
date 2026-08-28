@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nem Radenovic - Interactive AI Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --chat-bg: #0f172a;
+            --user-msg: #2563eb;
+            --ai-msg: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #10b981;
+            --accent-hover: #059669;
+            --border: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        /* Centered chat container without sidebar */
+        .app-container {
+            width: 100%;
+            max-width: 800px;
+            height: 85vh;
+            background-color: var(--chat-bg);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .chat-header {
+            background-color: var(--card-bg);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-title h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+            color: var(--text-main);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        .chat-history {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Message Wrapper structure for Avatars */
+        .message-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            max-width: 90%;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .message-wrapper.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-wrapper.assistant {
+            align-self: flex-start;
+        }
+
+        /* AI Avatar Styling */
+        .chat-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            object-fit: cover;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .message-wrapper.user .message {
+            background-color: var(--user-msg);
+            color: #fff;
+            border-bottom-right-radius: 2px;
+        }
+
+        .message-wrapper.assistant .message {
+            background-color: var(--ai-msg);
+            color: var(--text-main);
+            border-bottom-left-radius: 2px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .highlight-name {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.05em;
+        }
+
+        /* Suggested Questions */
+        .suggestions-container {
+            padding: 0 20px 12px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+
+        .suggestion-btn {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .suggestion-btn:hover {
+            background-color: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        /* Input Controls */
+        .input-area {
+            background-color: var(--card-bg);
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+        }
+
+        .input-area input {
+            flex: 1;
+            background-color: var(--chat-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-area input:focus {
+            border-color: var(--accent);
+        }
+
+        .input-area button {
+            background-color: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0 24px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .input-area button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        /* Typing indicator animation */
+        .typing {
+            display: inline-flex;
+            gap: 4px;
+            padding: 4px 0;
+        }
+
+        .typing span {
+            width: 6px;
+            height: 6px;
+            background-color: var(--text-muted);
+            border-radius: 50%;
+            animation: bounce 1.2s infinite ease-in-out;
+        }
+
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-5px); }
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 768px) {
+            .app-container {
+                height: 100vh;
+                border-radius: 0;
+                border: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header class="chat-header">
+        <div class="header-title">
+            <h1>Nem's AI Portfolio Assistant</h1>
+        </div>
+        <div class="status-indicator">
+            <span class="dot"></span>
+            <span>Active</span>
+        </div>
+    </header>
+
+    <div class="chat-history" id="chatHistory">
+        <!-- Hardcoded Welcome Message -->
+        <div class="message-wrapper assistant">
+            <img src="https://nem-radenovic.com/wp-content/uploads/2026/08/nem-avatar.jpg" alt="Nem Radenovic" class="chat-avatar">
+            <div class="message">
+                Welcome! 👋<br><br>
+                I am an AI trained on <span class="highlight-name">Nem Radenovic</span>'s background. Feel free to ask about his experience in digital marketing, MarTech optimization, personal background, or what would make him a great addition to your team.
+            </div>
+        </div>
+    </div>
+
+    <div class="suggestions-container" id="suggestions">
+        <button class="suggestion-btn" onclick="askQuestion('personal')">Personal & Hobbies</button>
+        <button class="suggestion-btn" onclick="askQuestion('roles')">Target Roles</button>
+        <button class="suggestion-btn" onclick="askQuestion('leadership')">Leadership & Mentoring</button>
+        <button class="suggestion-btn" onclick="askQuestion('tech')">MarTech Stack</button>
+        <button class="suggestion-btn" onclick="askQuestion('projects')">Key Achievements</button>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Ask about Nem's background, hobbies, leadership style, or skills..." onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">Ask</button>
+    </div>
+</div>
+
+<script>
+    const avatarUrl = "https://nem-radenovic.com/wp-content/uploads/2026/08/nem-avatar.jpg";
+
+    const knowledgeBase = {
+        personal: "Outside of professional life, here are a few fun facts about Nem:\n\n• **Family Life:** He has a family of five—his wife (who is a practicing family and emergency physician), a 5-year-old daughter, a 3-year-old son, and 'Dart', their 7-year-old Beagle/Lab mix!\n• **Background:** Originally from a Serbian background, Nem moved to Canada in 1999 and is fully bilingual in English and Serbo-Croatian.\n• **Active Hobbies:** He stays active through competitive rec basketball and volleyball leagues, running, hiking, and recently took up skiing thanks to his partner.\n• **Other Interests:** He operates a freelance digital branding business, enjoys board game design, and cultivates fruit trees in his garden.",
+
+        roles: "Nem is actively targeting strategic leadership and senior management roles where he can drive digital transformation, build omnichannel strategies, and foster human-first AI adoption. His target titles include:\n• Senior Digital Marketing Manager / Digital Marketing Director\n• Digital Experience Lead / Lead Digital Marketing\n• Head of Digital Marketing\n• MedTech Marketing Manager",
+
+        projects: "Here are a few high-impact achievements from Nem's career:\n• **153% ROI Patient Sampling Campaign:** Launched a mobile app sampling initiative at embecta that became a global high-growth model.\n• **Giving Day Gamification:** Partnered with Advancement at UWaterloo to launch a campaign game, increasing donations by 39%.\n• **First Web Store Launch:** Built and launched a Shopify eCommerce store for Christie Digital, selling out clearance inventory by 42% in 8 months.\n• **B2B Transformation:** Increased CTRs by 155% and eCommerce revenue by 18% over 4 years at Canadian Workplace Solutions by aligning ERP, CRM, and automation systems.",
+
+        leadership: "Nem brings a highly collaborative and mentorship-driven approach to leadership. Throughout his career, he has led technical and non-technical teams, managed agency relationships, and overseen large cross-functional budgets.\n\nOutside of work, he gives back to the community as a Business Mentor at the Business Centre Guelph-Wellington (mentoring local entrepreneurs) and previously served as a Digital Health Task Force Committee Member for MedTech Canada.",
+
+        tech: "Nem bridges the gap between high-level strategy and hands-on execution. His MarTech stack includes:\n• **Web & Dev:** HTML5, CSS3, WordPress, UX Strategy, Digital Accessibility (WCAG/AODA).\n• **CRM & Automation:** Salesforce, Marketo, Veeva PromoMats.\n• **Analytics:** Google Analytics 4, Looker Studio, Search Console.\n• **Emerging Tech:** He holds 2026 certifications as a Microsoft AI Transformation Leader and Google AI Professional.",
+
+        education: "Nem is deeply committed to continuous learning:\n• He is currently pursuing a Master of Arts in Digital Experience Innovation at the University of Waterloo (Expected 2028).\n• He holds a Bachelor of Arts in Communication Studies and Business Administration from Wilfrid Laurier University."
+    };
+
+    const chatHistory = document.getElementById('chatHistory');
+    const userInput = document.getElementById('userInput');
+
+    function formatText(text) {
+        let formatted = text.replace(/\n/g, '<br>');
+        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        return formatted;
+    }
+
+    function addMessage(text, sender) {
+        const wrapper = document.createElement('div');
+        wrapper.classList.add('message-wrapper', sender);
+
+        if (sender === 'assistant') {
+            const avatar = document.createElement('img');
+            avatar.src = avatarUrl;
+            avatar.alt = "Nem Radenovic";
+            avatar.className = "chat-avatar";
+            wrapper.appendChild(avatar);
+        }
+
+        const msgDiv = document.createElement('div');
+        msgDiv.classList.add('message');
+        msgDiv.innerHTML = formatText(text);
+        
+        wrapper.appendChild(msgDiv);
+        chatHistory.appendChild(wrapper);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        const wrapper = document.createElement('div');
+        wrapper.classList.add('message-wrapper', 'assistant');
+        wrapper.id = 'typingIndicator';
+
+        const avatar = document.createElement('img');
+        avatar.src = avatarUrl;
+        avatar.alt = "Nem Radenovic";
+        avatar.className = "chat-avatar";
+        wrapper.appendChild(avatar);
+
+        const msgDiv = document.createElement('div');
+        msgDiv.classList.add('message');
+        msgDiv.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+        
+        wrapper.appendChild(msgDiv);
+        chatHistory.appendChild(wrapper);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        const indicator = document.getElementById('typingIndicator');
+        if (indicator) indicator.remove();
+    }
+
+    function handleKeyPress(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    }
+
+    function sendMessage() {
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        addMessage(text, 'user');
+        userInput.value = '';
+
+        showTypingIndicator();
+
+        setTimeout(() => {
+            removeTypingIndicator();
+            const response = processQuery(text);
+            addMessage(response, 'assistant');
+        }, 600);
+    }
+
+    function askQuestion(type) {
+        const queryMap = {
+            'personal': "What does Nem like to do outside of work? Any hobbies or fun facts?",
+            'roles': "What target roles is Nem interested in?",
+            'leadership': "Tell me about Nem's leadership style and mentoring experience.",
+            'tech': "What specific MarTech and AI tools does Nem have experience with?",
+            'projects': "What are Nem's key project achievements?"
+        };
+
+        const queryText = queryMap[type];
+        addMessage(queryText, 'user');
+        showTypingIndicator();
+
+        setTimeout(() => {
+            removeTypingIndicator();
+            addMessage(knowledgeBase[type], 'assistant');
+        }, 500);
+    }
+
+    function processQuery(query) {
+        const q = query.toLowerCase();
+
+        if (q.includes('personal') || q.includes('hobby') || q.includes('hobbies') || q.includes('interest') || q.includes('family') || q.includes('dog') || q.includes('ski') || q.includes('sport') || q.includes('fun fact') || q.includes('outside of work') || q.includes('spare time') || q.includes('free time') || q.includes('weekend') || q.includes('serb')) {
+            return knowledgeBase.personal;
+        } else if (q.includes('lead') || q.includes('manage') || q.includes('mentor') || q.includes('volunteer') || q.includes('style') || q.includes('culture')) {
+            return knowledgeBase.leadership;
+        } else if (q.includes('role') || q.includes('target') || q.includes('position') || q.includes('looking for') || q.includes('next move')) {
+            return knowledgeBase.roles;
+        } else if (q.includes('skill') || q.includes('tech') || q.includes('stack') || q.includes('certif') || q.includes('tool') || q.includes('ai') || q.includes('software')) {
+            return knowledgeBase.tech;
+        } else if (q.includes('achievement') || q.includes('project') || q.includes('impact') || q.includes('result') || q.includes('roi') || q.includes('campaign')) {
+            return knowledgeBase.projects;
+        } else if (q.includes('education') || q.includes('school') || q.includes('degree') || q.includes('university') || q.includes('waterloo') || q.includes('laurier') || q.includes('master')) {
+            return knowledgeBase.education;
+        } else if (q.includes('medtech') || q.includes('medical') || q.includes('pharma') || q.includes('dexcom') || q.includes('embecta') || q.includes('bd') || q.includes('hcp')) {
+            return "Nem has extensive experience across the medical device, medical technology, pharmaceutical, and life sciences sectors. He has held key marketing leadership roles at Dexcom (HCP Marketing Manager), embecta (Senior Manager, Digital Marketing), and BD.";
+        } else if (q.includes('contact') || q.includes('email') || q.includes('phone') || q.includes('location') || q.includes('live') || q.includes('based') || q.includes('commute')) {
+            return "Nem is based in Guelph, Ontario, Canada, and currently commutes to the Waterloo area. You can reach him via email at nem.radenovic@gmail.com, phone at 519-722-1412, or via LinkedIn at linkedin.com/in/nemradenovic.";
+        } else {
+            return "Thanks for asking! Nem brings over 16 years of digital marketing, experience design, and omnichannel strategy experience across MedTech, B2B, and Higher Education. Feel free to click one of the suggested buttons below or ask specifically about his personal hobbies, target roles, leadership style, or technical skills!";
+        }
+    }
+</script>
+
+</body>
+</html>
